@@ -1,16 +1,32 @@
-CC=g++
-CFLAGS=-c
+TARGET	= mapping
+CC	= g++
+CFLAGS	= -c -Wall
+LINKER   = g++ -o
+LFLAGS   = -Wall -I. -lm
 
-all: LibCell.o ConcCell.o test.o
-	$(CC) LibCell.o ConcCell.o test.o -o test
-LibCell.o: LibCell.cpp
-	$(CC) $(CFLAGS) LibCell.cpp
-ConcCell.o: ConcCell.cpp
-	$(CC) $(CFLAGS) ConcCell.cpp
-test.o: test.cpp
-	$(CC) $(CFLAGS) test.cpp
+SRCDIR	= src
+OBJDIR	= obj
+BINDIR	= bin
+
+SOURCES := $(wildcard $(SRCDIR)/*.cpp)
+INCLUDES:= $(wildcard $(SRCDIR)/*.hpp)
+OBJECTS	:= $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
+rm	= rm -f
+
+$(BINDIR)/$(TARGET): $(OBJECTS)
+	@$(LINKER) $@ $(LFLAGS) $(OBJECTS)
+	@echo "Linking complete!"
+
+$(OBJECTS): $(OBJDIR)/%.o : $(SRCDIR)/%.cpp
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiled "$<" successfully!"
+
+.PHONEY: clean
 clean:
-	rm *.o
-	rm *.gch
-	rm test
-	rm *~
+	@$(rm) $(OBJECTS)
+	@echo "Cleanup complete!"
+
+.PHONEY: remove
+remove: clean
+	@$(rm) $(BINDIR)/$(TARGET)
+	@echo "Executable removed!"
